@@ -1,0 +1,5 @@
+0.2
+
+- python 2 support
+- LysException instead of asserts
+- block people from doing a / b / c instead of a / (b / c)

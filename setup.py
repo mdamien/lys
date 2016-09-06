@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='lys',
-    version='0.1',
+    version='0.2',
     description='Simple HTML templating for Python',
     long_description=open('README.rst').read(),
     url='http://github.com/mdamien/lys',
