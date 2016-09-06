@@ -13,7 +13,10 @@
 ))
 '<ul><li>One</li><li>Two</li></ul>'
 """
-import html, types, keyword
+import html, types, keyword, sys
+
+if sys.version_info >= (3,):
+    unicode = str
 
 
 __all__ = ['L', 'raw', 'LysExcept']
@@ -37,7 +40,7 @@ def render(node):
     if type(node) in (tuple, list, types.GeneratorType):
         return ''.join(render(child) for child in node)
 
-    if type(node) == str:
+    if type(node) in (str, unicode):
         return html.escape(node)
 
     children_rendered = ''
@@ -66,7 +69,7 @@ def render(node):
         tag=node.tag, children=children_rendered, attrs=attrs_rendered)
 
 
-class Node:
+class Node(object):
     """An HTML element"""
     def __init__(self, tag, attrs=None, children=None):
         self.tag = tag
@@ -78,9 +81,9 @@ class Node:
         Return a new node with the same tag but new attributes
         """
         def clean(k, v):
-            if type(v) not in (str, RawNode):
+            if type(v) not in (str, unicode, RawNode):
                 raise LyxException('Invalid attribute value "{}"'
-                    'for key "{}"'.format(v, k))
+                    ' for key "{}"'.format(v, k))
             # allow to use reserved keywords as: class_, for_,..
             if k[-1] == '_' and k[:-1] in keyword.kwlist:
                 k = k[:-1]
@@ -101,6 +104,10 @@ class Node:
                 attrs['class'] = ' '.join(new_classes)
 
         return Node(self.tag, attrs)
+
+    # python 2 compat
+    def __div__(self, children):
+        return self.__truediv__(children)
 
     def __truediv__(self, children):
         """
@@ -123,7 +130,7 @@ class Node:
         return render(self)
 
 
-class RawNode:
+class RawNode(object):
     """Node marked as already escaped"""
     def __init__(self, content):
         self.content = content
