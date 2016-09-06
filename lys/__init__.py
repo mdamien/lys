@@ -16,11 +16,15 @@
 import html, types, keyword
 
 
-__all__ = ['L', 'raw']
+__all__ = ['L', 'raw', 'LysExcept']
 
 
 VOID_TAGS = 'area', 'base', 'br', 'col', 'embed', 'hr', \
     'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'
+
+
+class LyxException(Exception):
+    pass
 
 
 def render(node):
@@ -43,8 +47,8 @@ def render(node):
     attrs_rendered = ''
     if node.attrs:
         def render_attr(key, value):
-            assert key
-            assert ' ' not in key
+            if not key or ' ' in key:
+                raise LyxException('Invalid attribute name {}'.format(key))
             key = key.replace('class_', 'class')
             if value:
                 if type(value) is not RawNode:
@@ -56,7 +60,6 @@ def render(node):
         attrs_rendered = ' ' + ' '.join(render_attr(k, node.attrs[k]) for k in sorted(node.attrs))
 
     if node.tag in VOID_TAGS:
-        assert not node.children
         return '<{tag}{attrs}/>'.format(tag=node.tag, attrs=attrs_rendered)
 
     return '<{tag}{attrs}>{children}</{tag}>'.format(
@@ -66,7 +69,6 @@ def render(node):
 class Node:
     """An HTML element"""
     def __init__(self, tag, attrs=None, children=None):
-        assert tag
         self.tag = tag
         self.attrs = attrs
         self.children = children
@@ -101,7 +103,14 @@ class Node:
         """
         Mark a list or one node as the children of this node
         """
-        assert self.tag not in VOID_TAGS
+        if self.children is not None:
+            # Block assigning two times the children to a node because
+            # doing `a / b / c` is a counter-intuive and an easy-to-miss error
+            # that is gonna assign two times the children of `a`
+            raise LyxException('Can\'t re-assign the children of a node via /,'
+                ' you have to use node.children instead.')
+        if self.tag in VOID_TAGS:
+            raise LyxException('<{}> can\'t have children nodes'.format(self.tag))
         if type(children) not in (tuple, list):
             children = (children,)
         self.children = children

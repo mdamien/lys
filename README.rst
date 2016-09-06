@@ -23,7 +23,7 @@ A few more tricks:
 
 .. code:: python
 
-    # use raw() to mark the content as already escaped
+    # raw() to mark the content as already escaped
     from lys import raw
     L.p / raw('<script>alert("boo")</script>')
 
@@ -31,7 +31,7 @@ A few more tricks:
     L.button(data_id=123) / 'click me'
     # => <button data-id="123">click me</button>
 
-    # use shortcut to add classes and ids easily
+    # shortcut to add classes and ids easily
     L.button('#magic-button.very-big', onclick='add_it()') / 'Magic !'
 
 

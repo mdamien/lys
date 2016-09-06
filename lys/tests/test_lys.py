@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from lys import L, raw
+from lys import L, raw, LyxException
 
 class Test(TestCase):
     def test_hello_world(self):
@@ -44,3 +44,9 @@ class Test(TestCase):
             '<span class="hello" id="world"></span>')
         self.assertEqual(str(L.span('#what.')),
             '<span id="what"></span>')
+
+    def test_raise(self):
+        with self.assertRaises(LyxException):
+            L.h1 / L.a / 'WeLcOmE-HoMe.Com'
+        with self.assertRaises(LyxException):
+            L.br / L.p
