@@ -34,5 +34,15 @@ A few more tricks:
     # shortcut to add classes and ids easily
     L.button('#magic-button.very-big', onclick='add_it()') / 'Magic !'
 
+    # one easy way to do loops and ifs
+    (
+        L.h1 / 'Welcome',
+        (L.ul / (
+            'Try one of our recipes:',
+            (L.li / (
+                L.a(href=recipe.link) / recipe.name
+            ) for recipe in recipes)
+        ) if len(recipes) > 0 else ''),
+    )
 
 **Inspiration** : `pyxl <https://github.com/dropbox/pyxl>`_, `React <https://facebook.github.io/react/>`_
