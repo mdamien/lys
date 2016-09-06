@@ -42,13 +42,25 @@ class Test(TestCase):
             '<span class="hello world"></span>')
         self.assertEqual(str(L.span('#world.hello')),
             '<span class="hello" id="world"></span>')
-        self.assertEqual(str(L.span('#what.')),
+        self.assertEqual(str(L.span('#what')),
             '<span id="what"></span>')
 
     def test_raise(self):
+        # no re-assignement of children
         with self.assertRaises(LyxException):
             L.h1 / L.a / 'WeLcOmE-HoMe.Com'
+        
+        # no children for void tags
         with self.assertRaises(LyxException):
             L.br / L.p
+        
+        # only str or raw() attributes values
         with self.assertRaises(LyxException):
             L.button(data_id=123)
+
+        # invalid shortcuts
+        with self.assertRaises(LyxException):
+            L.span('.foo.hello world')
+        with self.assertRaises(LyxException):
+            L.span(',hello')
+        

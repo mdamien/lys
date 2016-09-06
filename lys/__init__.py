@@ -92,14 +92,19 @@ class Node(object):
         attrs = {clean(k, v): v for k, v in attrs.items()}
 
         if _shortcut:
+            def raise_if_bad_name(name, type='class'):
+                # TODO: regex to verify if valid class name
+                if ' ' in name or '.' in name or ',' in name:
+                    raise LyxException('"{}" is an invalid {} name'.format(name, type))
+                return name
             classes = _shortcut.split('.')
             # add #id if there is one
             if classes[0] and classes[0][0] == '#':
-                attrs['id'] = classes[0][1:]
+                attrs['id'] = raise_if_bad_name(classes[0][1:], 'id')
                 classes = classes[1:]
             # add classes to the current class
             current_classes = attrs.get('class', '').split(' ')
-            new_classes = [klass for klass in current_classes + classes if klass]
+            new_classes = [raise_if_bad_name(klass) for klass in current_classes + classes if klass]
             if new_classes:
                 attrs['class'] = ' '.join(new_classes)
 
