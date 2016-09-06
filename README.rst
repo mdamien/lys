@@ -28,7 +28,7 @@ A few more tricks:
     L.p / raw('<script>alert("boo")</script>')
 
     # attributes '_' are replaced with '-'
-    L.button(data_id=123) / 'click me'
+    L.button(data_id="123") / 'click me'
     # => <button data-id="123">click me</button>
 
     # shortcut to add classes and ids easily

@@ -48,13 +48,13 @@ def render(node):
     if node.attrs:
         def render_attr(key, value):
             if not key or ' ' in key:
-                raise LyxException('Invalid attribute name {}'.format(key))
+                raise LyxException('Invalid attribute name "{}"'.format(key))
             key = key.replace('class_', 'class')
             if value:
-                if type(value) is not RawNode:
-                    value = html.escape(value)
-                else:
+                if type(value) is RawNode:
                     value = str(value)
+                else:
+                    value = html.escape(value)
                 return key + '="' + value + '"'
             return key
         attrs_rendered = ' ' + ' '.join(render_attr(k, node.attrs[k]) for k in sorted(node.attrs))
@@ -77,13 +77,16 @@ class Node:
         """
         Return a new node with the same tag but new attributes
         """
-        def clean(k):
+        def clean(k, v):
+            if type(v) not in (str, RawNode):
+                raise LyxException('Invalid attribute value "{}"'
+                    'for key "{}"'.format(v, k))
             # allow to use reserved keywords as: class_, for_,..
             if k[-1] == '_' and k[:-1] in keyword.kwlist:
                 k = k[:-1]
             # replace all '_' with '-'
             return k.replace('_', '-')
-        attrs = {clean(k): v for k, v in attrs.items()}
+        attrs = {clean(k, v): v for k, v in attrs.items()}
 
         if _shortcut:
             classes = _shortcut.split('.')

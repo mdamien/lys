@@ -50,3 +50,5 @@ class Test(TestCase):
             L.h1 / L.a / 'WeLcOmE-HoMe.Com'
         with self.assertRaises(LyxException):
             L.br / L.p
+        with self.assertRaises(LyxException):
+            L.button(data_id=123)
