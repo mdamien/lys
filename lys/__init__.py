@@ -13,24 +13,45 @@
 ))
 '<ul><li>One</li><li>Two</li></ul>'
 """
-import html, types, keyword, sys
-
-if sys.version_info >= (3,):
-    unicode = str
+from __future__ import unicode_literals
+import html, types, keyword, sys, re
 
 
-__all__ = ['L', 'raw', 'LysExcept']
+__all__ = [
+    'L',
+    'LyxException',
+    'raw',
+    'render',
+    'Node',
+]
 
 
-VOID_TAGS = 'area', 'base', 'br', 'col', 'embed', 'hr', \
-    'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'
+VOID_TAGS = [
+    'area', 'base', 'br', 'col', 'embed', 'hr',
+    'img', 'input', 'keygen', 'link', 'meta',
+    'param', 'source', 'track', 'wbr'
+]
 
 
 class LyxException(Exception):
-    pass
+    """Base exception class for all Lys related errors"""
+
+
+def render_attr(key, value):
+    if not key or ' ' in key:
+        raise LyxException('Invalid attribute name "{}"'.format(key))
+    key = key.replace('class_', 'class')
+    if value:
+        if type(value) is RawNode:
+            value = str(value)
+        else:
+            value = html.escape(value)
+        return key + '="' + value + '"'
+    return key
 
 
 def render(node):
+    """Render a node or a node list to HTML"""
     if node is None:
         return ''
 
@@ -40,7 +61,7 @@ def render(node):
     if type(node) in (tuple, list, types.GeneratorType):
         return ''.join(render(child) for child in node)
 
-    if type(node) in (str, unicode):
+    if type(node) is str:
         return html.escape(node)
 
     children_rendered = ''
@@ -49,18 +70,9 @@ def render(node):
 
     attrs_rendered = ''
     if node.attrs:
-        def render_attr(key, value):
-            if not key or ' ' in key:
-                raise LyxException('Invalid attribute name "{}"'.format(key))
-            key = key.replace('class_', 'class')
-            if value:
-                if type(value) is RawNode:
-                    value = str(value)
-                else:
-                    value = html.escape(value)
-                return key + '="' + value + '"'
-            return key
-        attrs_rendered = ' ' + ' '.join(render_attr(k, node.attrs[k]) for k in sorted(node.attrs))
+        attrs_rendered = ' ' + ' '.join(
+            render_attr(k, node.attrs[k]) for k in sorted(node.attrs)
+        )
 
     if node.tag in VOID_TAGS:
         return '<{tag}{attrs}/>'.format(tag=node.tag, attrs=attrs_rendered)
@@ -70,18 +82,16 @@ def render(node):
 
 
 class Node(object):
-    """An HTML element"""
+    """An HTML node"""
     def __init__(self, tag, attrs=None, children=None):
         self.tag = tag
         self.attrs = attrs
         self.children = children
 
     def __call__(self, _shortcut=None, **attrs):
-        """
-        Return a new node with the same tag but new attributes
-        """
+        """Return a new node with the same tag but new attributes"""
         def clean(k, v):
-            if type(v) not in (str, unicode, RawNode):
+            if type(v) not in (str, RawNode):
                 raise LyxException('Invalid attribute value "{}"'
                     ' for key "{}"'.format(v, k))
             # allow to use reserved keywords as: class_, for_,..
@@ -91,6 +101,7 @@ class Node(object):
             return k.replace('_', '-')
         attrs = {clean(k, v): v for k, v in attrs.items()}
 
+        # process given shorcut strings like '#my_id.a_class.another_class'
         if _shortcut:
             def raise_if_bad_name(name, type='class'):
                 # TODO: regex to verify if valid class name
@@ -115,15 +126,14 @@ class Node(object):
         return self.__truediv__(children)
 
     def __truediv__(self, children):
-        """
-        Mark a list or one node as the children of this node
-        """
+        """Mark a list or one node as the children of this node"""
         if self.children is not None:
             # Block assigning two times the children to a node because
             # doing `a / b / c` is a counter-intuive and an easy-to-miss error
             # that is gonna assign two times the children of `a`
-            raise LyxException('Can\'t re-assign the children of a node via /,'
-                ' you have to use node.children instead.')
+            raise LyxException("Can't re-assign the children of a node via /,"
+                + " you have to use node.children instead.\n"
+                + "Maybe you tried to do something like 'a / b / c'")
         if self.tag in VOID_TAGS:
             raise LyxException('<{}> can\'t have children nodes'.format(self.tag))
         if type(children) not in (tuple, list):
@@ -133,6 +143,10 @@ class Node(object):
 
     def __str__(self):
         return render(self)
+
+    def __repr__(self):
+        return 'Node(tag={}, attrs={}, children={})'.format(self.tag,
+                    self.attrs, self.children)
 
 
 class RawNode(object):

@@ -1,5 +1,10 @@
 Lys
 ===
+.. image:: https://img.shields.io/pypi/v/lys.svg
+    :target: https://pypi.python.org/pypi/lys
+.. image:: https://travis-ci.org/mdamien/lys.svg?branch=master
+    :target: https://travis-ci.org/mdamien/lys
+
 *Simple HTML templating for Python*
 
 .. code:: python
