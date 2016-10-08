@@ -91,7 +91,7 @@ class Node(object):
     def __call__(self, _shortcut=None, **attrs):
         """Return a new node with the same tag but new attributes"""
         def clean(k, v):
-            if type(v) not in (str, RawNode):
+            if v and type(v) not in (str, RawNode):
                 raise LyxException('Invalid attribute value "{}"'
                     ' for key "{}"'.format(v, k))
             # allow to use reserved keywords as: class_, for_,..

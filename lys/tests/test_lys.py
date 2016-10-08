@@ -13,6 +13,8 @@ class Test(TestCase):
             '<input id="hello" value="world"/>')
         self.assertEqual(str(L.input(what='')),
             '<input what/>')
+        self.assertEqual(str(L.input(what=None)),
+            '<input what/>')
         self.assertEqual(str(L.input(data_trigger='666')),
             '<input data-trigger="666"/>')
 
