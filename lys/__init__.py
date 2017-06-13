@@ -19,7 +19,7 @@ import html, types, keyword, sys, re
 
 __all__ = [
     'L',
-    'LyxException',
+    'LysException',
     'raw',
     'render',
     'Node',
@@ -33,13 +33,13 @@ VOID_TAGS = [
 ]
 
 
-class LyxException(Exception):
+class LysException(Exception):
     """Base exception class for all Lys related errors"""
 
 
 def render_attr(key, value):
     if not key or ' ' in key:
-        raise LyxException('Invalid attribute name "{}"'.format(key))
+        raise LysException('Invalid attribute name "{}"'.format(key))
     key = key.replace('class_', 'class')
     if value:
         if type(value) is RawNode:
@@ -92,7 +92,7 @@ class Node(object):
         """Return a new node with the same tag but new attributes"""
         def clean(k, v):
             if v and type(v) not in (str, RawNode):
-                raise LyxException('Invalid attribute value "{}"'
+                raise LysException('Invalid attribute value "{}"'
                     ' for key "{}"'.format(v, k))
             # allow to use reserved keywords as: class_, for_,..
             if k[-1] == '_' and k[:-1] in keyword.kwlist:
@@ -106,7 +106,7 @@ class Node(object):
             def raise_if_bad_name(name, type='class'):
                 # TODO: regex to verify if valid class name
                 if ' ' in name or '.' in name or ',' in name:
-                    raise LyxException('"{}" is an invalid {} name'.format(name, type))
+                    raise LysException('"{}" is an invalid {} name'.format(name, type))
                 return name
             classes = _shortcut.split('.')
             # add #id if there is one
@@ -131,11 +131,11 @@ class Node(object):
             # Block assigning two times the children to a node because
             # doing `a / b / c` is a counter-intuive and an easy-to-miss error
             # that is gonna assign two times the children of `a`
-            raise LyxException("Can't re-assign the children of a node via /,"
+            raise LysException("Can't re-assign the children of a node via /,"
                 + " you have to use node.children instead.\n"
                 + "Maybe you tried to do something like 'a / b / c'")
         if self.tag in VOID_TAGS:
-            raise LyxException('<{}> can\'t have children nodes'.format(self.tag))
+            raise LysException('<{}> can\'t have children nodes'.format(self.tag))
         if type(children) not in (tuple, list):
             children = (children,)
         self.children = children
