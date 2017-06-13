@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from lys import L, raw, LyxException
+from lys import L, raw, LysException
 
 class Test(TestCase):
     def test_hello_world(self):
@@ -49,20 +49,20 @@ class Test(TestCase):
 
     def test_raise(self):
         # no re-assignement of children
-        with self.assertRaises(LyxException):
+        with self.assertRaises(LysException):
             L.h1 / L.a / 'WeLcOmE-HoMe.Com'
         
         # no children for void tags
-        with self.assertRaises(LyxException):
+        with self.assertRaises(LysException):
             L.br / L.p
         
         # only str or raw() attributes values
-        with self.assertRaises(LyxException):
+        with self.assertRaises(LysException):
             L.button(data_id=123)
 
         # invalid shortcuts
-        with self.assertRaises(LyxException):
+        with self.assertRaises(LysException):
             L.span('.foo.hello world')
-        with self.assertRaises(LyxException):
+        with self.assertRaises(LysException):
             L.span(',hello')
         
