@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='lys',
-    version='0.3',
+    version='1.0',
     description='Simple HTML templating for Python',
     long_description=open('README.rst').read(),
     url='http://github.com/mdamien/lys',
@@ -15,7 +15,7 @@ setup(
     license='MIT',
     install_requires=["future"] if sys.version_info < (3,) else [],
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
