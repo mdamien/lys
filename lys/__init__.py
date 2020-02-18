@@ -127,18 +127,14 @@ class Node(object):
 
     def __truediv__(self, children):
         """Mark a list or one node as the children of this node"""
-        if self.children is not None:
-            # Block assigning two times the children to a node because
-            # doing `a / b / c` is a counter-intuive and an easy-to-miss error
-            # that is gonna assign two times the children of `a`
-            raise LysException("Can't re-assign the children of a node via /,"
-                + " you have to use node.children instead.\n"
-                + "Maybe you tried to do something like 'a / b / c'")
         if self.tag in VOID_TAGS:
             raise LysException('<{}> can\'t have children nodes'.format(self.tag))
-        if type(children) not in (tuple, list):
-            children = (children,)
-        self.children = children
+        if self.children and len(self.children) == 1:
+            self.children = (self.children[0] / children,)
+        else:
+            if type(children) not in (tuple, list):
+                children = (children,)
+            self.children = children
         return self
 
     def __str__(self):

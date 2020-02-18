@@ -47,11 +47,17 @@ class Test(TestCase):
         self.assertEqual(str(L.span('#what')),
             '<span id="what"></span>')
 
+    def test_double_division(self):
+        self.assertEqual(
+            str(L.a / L.b / L.c / L.d),
+            '<a><b><c><d></d></c></b></a>'
+        )
+        self.assertEqual(
+            str(L.a / L.b / 'C'),
+            '<a><b>C</b></a>'
+        )
+
     def test_raise(self):
-        # no re-assignement of children
-        with self.assertRaises(LysException):
-            L.h1 / L.a / 'WeLcOmE-HoMe.Com'
-        
         # no children for void tags
         with self.assertRaises(LysException):
             L.br / L.p
