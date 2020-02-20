@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from lys import L, raw, LysException
+from lys import L, raw, LysException, render
 
 class Test(TestCase):
     def test_hello_world(self):
@@ -55,6 +55,12 @@ class Test(TestCase):
         self.assertEqual(
             str(L.a / L.b / 'C'),
             '<a><b>C</b></a>'
+        )
+
+    def test_pretty_print(self):
+        self.assertEqual(
+            render(L.a / L.b / 'C', pretty=True),
+            '<html>\n <body>\n  <a>\n   <b>\n    C\n   </b>\n  </a>\n </body>\n</html>'
         )
 
     def test_raise(self):

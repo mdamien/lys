@@ -13,7 +13,9 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     license='MIT',
-    install_requires=["future"] if sys.version_info < (3,) else [],
+    install_requires=["beautifulsoup4", 'lxml'] + (
+        ["future"] if sys.version_info < (3,) else []
+    ),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

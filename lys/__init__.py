@@ -15,6 +15,7 @@
 """
 from __future__ import unicode_literals
 import html, types, keyword, sys, re
+from bs4 import BeautifulSoup
 
 
 __all__ = [
@@ -37,6 +38,10 @@ class LysException(Exception):
     """Base exception class for all Lys related errors"""
 
 
+def prettify(html):
+    return BeautifulSoup(html, features="lxml").prettify()
+
+
 def render_attr(key, value):
     if not key or ' ' in key:
         raise LysException('Invalid attribute name "{}"'.format(key))
@@ -50,35 +55,34 @@ def render_attr(key, value):
     return key
 
 
-def render(node):
+def render(node, pretty=False):
     """Render a node or a node list to HTML"""
     if node is None:
-        return ''
+        output = ''
+    elif type(node) is RawNode:
+        output = node.content
+    elif type(node) in (tuple, list, types.GeneratorType):
+        output = ''.join(render(child) for child in node)
+    elif type(node) is str:
+        output = html.escape(node)
+    else:
+        children_rendered = ''
+        if node.children:
+            children_rendered = render(node.children)
 
-    if type(node) is RawNode:
-        return node.content
+        attrs_rendered = ''
+        if node.attrs:
+            attrs_rendered = ' ' + ' '.join(
+                render_attr(k, node.attrs[k]) for k in sorted(node.attrs)
+            )
 
-    if type(node) in (tuple, list, types.GeneratorType):
-        return ''.join(render(child) for child in node)
+        if node.tag in VOID_TAGS:
+            return '<{tag}{attrs}/>'.format(tag=node.tag, attrs=attrs_rendered)
 
-    if type(node) is str:
-        return html.escape(node)
+        output = '<{tag}{attrs}>{children}</{tag}>'.format(
+            tag=node.tag, children=children_rendered, attrs=attrs_rendered)
 
-    children_rendered = ''
-    if node.children:
-        children_rendered = render(node.children)
-
-    attrs_rendered = ''
-    if node.attrs:
-        attrs_rendered = ' ' + ' '.join(
-            render_attr(k, node.attrs[k]) for k in sorted(node.attrs)
-        )
-
-    if node.tag in VOID_TAGS:
-        return '<{tag}{attrs}/>'.format(tag=node.tag, attrs=attrs_rendered)
-
-    return '<{tag}{attrs}>{children}</{tag}>'.format(
-        tag=node.tag, children=children_rendered, attrs=attrs_rendered)
+    return prettify(output) if pretty else output
 
 
 class Node(object):
